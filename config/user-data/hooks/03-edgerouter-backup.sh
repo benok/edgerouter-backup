@@ -46,6 +46,8 @@ sudo cat /tmp/edgerouter-backup-$FNAME_BACKUP.tar | sudo ssh -q -i $SSH_KEYFILE 
 echo "edgerouter-backup: Triggering 'git commit'"
 sudo ssh -q -i $SSH_KEYFILE -p $SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST 'bash -s' << ENDSSH > /dev/null
 cd $REPO_PATH
+git config user.email $GIT_EMAIL
+git config user.name $GIT_NAME
 git add $REPO_PATH/$FNAME_CONFIG
 git add $REPO_PATH/$FNAME_CLI
 git add $REPO_PATH/$FNAME_BACKUP.tar.gz
