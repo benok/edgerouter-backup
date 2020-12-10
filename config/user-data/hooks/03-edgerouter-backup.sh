@@ -28,19 +28,19 @@ GIT_COMMIT_MSG="$COMMIT_CMT | by $USER | via $COMMIT_VIA | $TIME"
 #echo "edgerouter-backup: Removing temporary files"
 sudo rm /tmp/edgerouter-backup-$FNAME_CONFIG  &> /dev/null
 sudo rm /tmp/edgerouter-backup-$FNAME_CLI  &> /dev/null
-sudo rm /tmp/edgerouter-backup-$FNAME_BACKUP.tar  &> /dev/null
+sudo rm /tmp/edgerouter-backup-$FNAME_BACKUP.tar.gz  &> /dev/null
 
 
 # Generate temporary config files
 sudo cli-shell-api showConfig --show-active-only --show-ignore-edit --show-show-defaults > /tmp/edgerouter-backup-$FNAME_CONFIG
 sudo cli-shell-api showConfig --show-commands --show-active-only --show-ignore-edit --show-show-defaults > /tmp/edgerouter-backup-$FNAME_CLI
-sudo find /config/* | grep -v "/config/dhcpd.leases" | xargs tar cf /tmp/edgerouter-backup-$FNAME_BACKUP.tar &> /dev/null
+sudo tar -czvf /tmp/edgerouter-backup-$FNAME_BACKUP.tar.gz /config
 
 # Push config files
 echo "edgerouter-backup: Copying backup files to $SSH_USER@$SSH_HOST:$REPO_PATH"
 sudo scp -q -i $SSH_KEYFILE -P $SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/edgerouter-backup-$FNAME_CONFIG $SSH_USER@$SSH_HOST:$REPO_PATH/$FNAME_CONFIG > /dev/null
 sudo scp -q -i $SSH_KEYFILE -P $SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/edgerouter-backup-$FNAME_CLI $SSH_USER@$SSH_HOST:$REPO_PATH/$FNAME_CLI > /dev/null
-sudo scp -q -i $SSH_KEYFILE -P $SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/edgerouter-backup-$FNAME_BACKUP.tar $SSH_USER@$SSH_HOST:$REPO_PATH/$FNAME_BACKUP.tar > /dev/null
+sudo scp -q -i $SSH_KEYFILE -P $SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/edgerouter-backup-$FNAME_BACKUP.tar.gz $SSH_USER@$SSH_HOST:$REPO_PATH/$FNAME_BACKUP.tar.gz > /dev/null
 
 # git commit and git push on remote host
 echo "edgerouter-backup: Triggering 'git commit'"
@@ -50,7 +50,7 @@ git config user.email $GIT_EMAIL
 git config user.name $GIT_NAME
 git add $REPO_PATH/$FNAME_CONFIG
 git add $REPO_PATH/$FNAME_CLI
-git add $REPO_PATH/$FNAME_BACKUP.tar
+git add $REPO_PATH/$FNAME_BACKUP.tar.gz
 git commit -m "$GIT_COMMIT_MSG"
 git push
 ENDSSH
